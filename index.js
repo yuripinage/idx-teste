@@ -1,7 +1,7 @@
-import { AppRegistry } from 'react-native';
-import App from './src';
+import { AppRegistry } from 'react-native'
+import App from './src'
 
-AppRegistry.registerComponent('idxTeste', () => App);
+AppRegistry.registerComponent('idxTeste', () => App)
 
 //Yuri Alexandre Pinagé Ribeiro
 //yuripinage@gmail.com

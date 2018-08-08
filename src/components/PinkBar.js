@@ -1,12 +1,12 @@
 import React from 'react'
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native'
 
 const PinkBar = (props) => (
 
     <View style={styles.container}>
         <Text style={styles.textStyle}>{props.title}</Text>
     </View>
-);
+)
 
 const styles = StyleSheet.create({
 
@@ -26,6 +26,6 @@ const styles = StyleSheet.create({
         color: 'white',
         fontWeight: 'bold'
     }
-});
+})
 
-export { PinkBar };
+export { PinkBar }

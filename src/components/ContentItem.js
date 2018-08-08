@@ -1,23 +1,29 @@
 import React from 'react'
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableHighlight } from 'react-native'
 
 const ContentItem = (props) => (
 
-    <View style={styles.container}>
-        <Image source={props.img} style={styles.imageStyle}/>
-        <View style={styles.textContainer}>
-            <Text style={styles.titleStyle}>{props.title.toUpperCase()}</Text>
-            <Text style={styles.descriptionStyle}>{props.description}</Text>
-        </View>
-    </View>
-);
+        <TouchableHighlight onPress={props.onPress}>
+            <View>
+
+            <View style={styles.container}>
+                <Image source={props.article.img} style={styles.imageStyle}/>
+            </View>
+            <View style={styles.textContainer}>
+                <Text style={styles.titleStyle}>{props.article.title.toUpperCase()}</Text>
+                <Text style={styles.descriptionStyle}>{props.article.description}}</Text>
+            </View>
+
+            </View>
+        </TouchableHighlight>
+)
 
 const styles = StyleSheet.create({
 
     container: {
         backgroundColor: 'black',
         width: '100%',
-        height: 200,
+        height: 250,
         alignItems: 'stretch',
         justifyContent: 'center'
     },
@@ -30,8 +36,7 @@ const styles = StyleSheet.create({
         opacity: 0.5
     },
     textContainer: {
-        position: 'absolute',
-        bottom: 0,
+        marginTop: -120,
         padding: 20,
         flexDirection: 'column',
         width: '100%',
@@ -47,6 +52,6 @@ const styles = StyleSheet.create({
         color: 'white',
         fontWeight: '100'
     }, 
-});
+})
 
-export { ContentItem };
+export { ContentItem }

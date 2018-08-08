@@ -1,28 +1,75 @@
-import React, { Component } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { PinkBar, ContentItem} from '../components'
-
-const imgPhone = require('../assets/images/phone.jpg');
-const imgApp = require('../assets/images/app.jpg');
-const imgDashboard = require('../assets/images/dashboard.jpg');
+import React, { Component } from 'react'
+import { View, StyleSheet, ScrollView, BackHandler } from 'react-native'
+import { Actions } from 'react-native-router-flux'
+import SideMenu from 'react-native-side-menu'
+import { PinkBar, ContentItem, Header, DrawerMenu } from '../components'
+import { artigos } from '../Artigos'
 
 class Home extends Component {
 
+    constructor(props) {
+        super(props)
+
+        this.state = { 
+            toggle: () => {this.setState({ isOpen: !this.state.isOpen })},
+            menuState: (isOpen) => {this.setState({ isOpen })}
+        }
+    }
+
     render() {
 
+        const { toggle, menuState, isOpen } = this.state;
+
         return (
-            <View style={styles.container}>
+            <SideMenu
+                menu={<DrawerMenu closeDrawer={toggle.bind(this)} />}
+                isOpen={isOpen}
+                onChange={(isOpen) => menuState}
+                openMenuOffset={300}
+                disableGestures={false}
+                >
 
-                <PinkBar title='devices'/>
-                <ContentItem img={imgPhone} title='My Phone' description='Lorem ipsum dolor sit amet, consectetur adipiscing elit.'/>
+                <Header iconPress={toggle.bind(this)} headerText='Home' />
 
-                <PinkBar title='applications'/>
-                <ContentItem img={imgApp} title='My App' description='Lorem ipsum dolor sit amet, consectetur adipiscing elit.'/>
-                <ContentItem img={imgDashboard} title='My Dashboard' description='Lorem ipsum dolor sit amet, consectetur adipiscing elit.'/>
-            </View>
-        );
-    }    
+                <ScrollView>
+                    <View style={styles.container}>
 
+                        <PinkBar title='devices'/>
+
+                        <ContentItem 
+                            article={artigos[0]}
+                            onPress={() => Actions.article({ articleNum: 0 })}
+                            />
+
+                        <PinkBar title='applications'/>
+
+                        <ContentItem 
+                            article={artigos[1]}
+                            onPress={() => Actions.article({ articleNum: 1 })}
+                            />
+
+                        <ContentItem 
+                            article={artigos[2]}
+                            onPress={() => Actions.article({ articleNum: 2 })}
+                            />
+                    
+                    </View>
+                </ScrollView>
+            </SideMenu>
+        )
+    }
+
+    componentDidMount() {
+        BackHandler.addEventListener('hardwareBackPress', this.handleBackButton)
+    }
+
+    componentWillUnmount() {
+        BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton)
+    }
+
+    handleBackButton() {
+        return true
+    }
 }
 
 const styles = StyleSheet.create({
@@ -32,6 +79,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: 'white',
     }
-});
+})
 
 export default Home
