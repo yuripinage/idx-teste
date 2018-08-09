@@ -1,22 +1,126 @@
-import React from 'react'
-import { View, Text, StyleSheet, Image, TouchableHighlight } from 'react-native'
+import React, { Component } from 'react'
+import {PagerTabIndicator, IndicatorViewPager, PagerTitleIndicator, PagerDotIndicator} from 'rn-viewpager'
+import { View, Text, StyleSheet, Image, TouchableHighlight, TouchableWithoutFeedback } from 'react-native'
 
-const ContentItem = (props) => (
+const leftArrowImg = require('../assets/icons/arrow_left.png')
+const rightArrowImg = require('../assets/icons/arrow_right.png')
 
-        <TouchableHighlight onPress={props.onPress}>
+class ContentItem extends Component {
+
+    constructor(props) {
+        super(props)
+
+        this.state = { currentPage: 0 }
+    }
+
+    render() {
+
+        const { article, onPress } = this.props
+        const { iconContainer, iconStyle, textContainer, titleStyle, descriptionStyle } = styles
+
+        const leftArrowStyle = [iconContainer, {left: 0, justifyContent: 'flex-start'}]
+        const rightArrowStyle = [iconContainer, {right: 0, justifyContent: 'flex-end'}]
+        
+        return(
             <View>
+            
+                {this.renderImages()}
 
-            <View style={styles.container}>
-                <Image source={props.article.img} style={styles.imageStyle}/>
-            </View>
-            <View style={styles.textContainer}>
-                <Text style={styles.titleStyle}>{props.article.title.toUpperCase()}</Text>
-                <Text style={styles.descriptionStyle}>{props.article.description}}</Text>
-            </View>
+                {
+                    this.state.currentPage > 0
+                    ?
+                    <TouchableHighlight
+                        onPress={() => this.setCurrentPage(-1)}
+                        underlayColor='transparent'
+                        style={leftArrowStyle}
+                        >
+                        <Image source={leftArrowImg} style={iconStyle}/>
+                    </TouchableHighlight>
+                    :
+                    <View/>
+                }
+
+                {
+                    this.state.currentPage < 2
+                    ?
+                    <TouchableHighlight
+                        onPress={() => this.setCurrentPage(1)}
+                        underlayColor='transparent'
+                        style={rightArrowStyle}
+                        >
+                        <Image source={rightArrowImg} style={iconStyle}/>
+                    </TouchableHighlight>
+                    :
+                    <View/>
+                }
+                
+                <TouchableHighlight onPress={onPress} underlayColor='transparent' style={textContainer}>
+                    <View>
+                        <Text style={titleStyle}>{article.title.toUpperCase()}</Text>
+                        <Text style={descriptionStyle}>{article.description}</Text>
+                    </View>
+                </TouchableHighlight>
 
             </View>
-        </TouchableHighlight>
-)
+        )
+    }
+
+    //aqui é renderizado um slide repetindo a foto do artigo
+    //para navegar entre eles é preciso clicar nas arrows
+    renderImages = () => {
+
+        const { article, onPress } = this.props
+        const { container, imageStyle } = styles
+
+        return (
+            <IndicatorViewPager 
+                style={{height:250}}
+                horizontalScroll={false}
+                ref={(viewpager) => {this.viewpager = viewpager}}
+                > 
+
+                    <View>
+                        <TouchableHighlight onPress={onPress}>
+                            <View style={container}>
+                                <Image source={article.img} style={imageStyle}/>
+                            </View>
+                        </TouchableHighlight>
+                    </View>
+
+                    <View>
+                        <TouchableHighlight onPress={onPress}>
+                            <View style={container}>
+                                <Image source={article.img} style={imageStyle}/>
+                            </View>
+                        </TouchableHighlight>
+                    </View>
+
+                    <View>
+                        <TouchableHighlight onPress={onPress}>
+                            <View style={container}>
+                                <Image source={article.img} style={imageStyle}/>
+                            </View>
+                        </TouchableHighlight>
+                    </View>
+
+            </IndicatorViewPager>
+        )
+    }
+
+    //aqui faz o gerenciamento do clique nas arrows
+    //caso o usuário não possa mover o swipe para um lado específico, a arrow correspondente some 
+    setCurrentPage = (amount) => {
+
+        const target = this.state.currentPage + amount
+
+        if(target > 2 || target < 0)
+            return
+
+        this.viewpager.setPage(target)
+        this.setState({ currentPage: target })
+    }
+    
+}
 
 const styles = StyleSheet.create({
 
@@ -27,6 +131,7 @@ const styles = StyleSheet.create({
         alignItems: 'stretch',
         justifyContent: 'center'
     },
+
     imageStyle: {
         flexGrow:1,
         height:null,
@@ -35,6 +140,20 @@ const styles = StyleSheet.create({
         justifyContent:'center',
         opacity: 0.5
     },
+
+    iconContainer: {
+        position:'absolute',
+        top: 50, 
+        flexDirection: 'row',
+        alignItems: 'center',
+        width: 50,
+        padding: 10
+    },
+    iconStyle: {
+        width: 50,
+        height: 50
+    },
+
     textContainer: {
         marginTop: -120,
         padding: 20,

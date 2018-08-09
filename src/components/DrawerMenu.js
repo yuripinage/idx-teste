@@ -1,9 +1,10 @@
-import React, { Component, PropTypes } from 'react'
+import React, { Component } from 'react'
 import { View, Text, StyleSheet, TouchableNativeFeedback } from 'react-native'
 import { Actions } from 'react-native-router-flux'
 
 class DrawerMenu extends Component {
 
+    //navegação para o drawer pode ser feita tanto por swipe quanto clicando no ícone do header
     render() {
         
         const { container, headerStyle, headerTextStyle, buttonContainer, buttonStyle, buttonTextStyle } = styles
@@ -32,12 +33,14 @@ class DrawerMenu extends Component {
         )
     }
 
+    //se estiver clicando para a cena atual o drawer apenas fechará
     goToScene = (title) => {
+
         this.props.closeDrawer()
 
-        if(title === 'Home')
+        if(title === 'Home' && Actions.currentScene !== 'home')
             Actions.home()
-        else if(title === 'Favorites')
+        else if(title === 'Favorites' && Actions.currentScene !== 'favorites')
             Actions.favorites()
         
         

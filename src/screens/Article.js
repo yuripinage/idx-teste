@@ -1,12 +1,11 @@
 import React, { Component } from 'react'
-import { View, Text, StyleSheet, Image, ScrollView, AsyncStorage, TouchableWithoutFeedback, Alert } from 'react-native'
+import { View, Text, StyleSheet, Image, ScrollView, AsyncStorage, TouchableWithoutFeedback, Alert, BackHandler } from 'react-native'
 import { Actions } from 'react-native-router-flux'
 import { artigos } from '../Artigos'
 
 const backIcon = require('../assets/icons/ic_back.png')
 const starIcon = require('../assets/icons/ic_star.png')
 const starIconPink = require('../assets/icons/ic_star_pink.png')
-const giphy = require('../assets/images/giphy.gif')
 
 class Article extends Component {
 
@@ -25,7 +24,7 @@ class Article extends Component {
             container,
             imageContainer, imageStyle,
             headerContainer, titleStyle, categoryStyle,
-            contentStyle, gifStyle,
+            contentStyle,
             iconsContainer, iconStyle } = styles
 
         const currentArticle = artigos[this.props.articleNum]
@@ -47,12 +46,8 @@ class Article extends Component {
 
                     <Text style={contentStyle}>{txt}</Text>
 
-                    <View style={imageContainer}>
-                        <Image source={giphy} style={gifStyle} resizeMode='contain'/>
-                    </View>
-
                     <View style={iconsContainer}>
-                        <TouchableWithoutFeedback onPress={() => Actions.pop()}>
+                        <TouchableWithoutFeedback onPress={() => this.handleGoBack()}>
                             <Image source={backIcon} style={iconStyle} resizeMode='contain'/>
                         </TouchableWithoutFeedback>
                         
@@ -69,56 +64,75 @@ class Article extends Component {
         )
     }
 
-    setFavorite = () => {
+    //vai checar se já é um artigo favorito e fazer a devida manipulação no storage
+    setFavorite = async () => {
 
-        // let data = this.state.favoriteList
-        // const { articleNum } = this.props
+        let data = this.state.favoriteList
 
-        // const isNewFavorite = data.some(e => e === articleNum)
+        const { articleNum } = this.props
 
-        // if(isNewFavorite)
-        //     data.push(this.props.articleNum)
-        // else
-        //     data = data.filter(e => e !== articleNum)
+        const alreadyFavorite = data.some(item => item === articleNum)
 
-        // console.log(data)
-        // this.setState({ isFavorite: isNewFavorite, favoriteList: data })
+        if(!alreadyFavorite)
+            data.push(this.props.articleNum)
+        else
+            data = data.filter(item => item !== articleNum)
 
-        // AsyncStorage.setItem('favorites', JSON.stringify(data))
-        // .then(
-        //     this.setState({ isFavorite: isNewFavorite, favoriteList: data })
-        // )
-
-        // try {
-        //     await AsyncStorage.setItem('favorites', JSON.stringify(arr))
-
-        //     } catch (error) {
-        //     Alert.alert('ERRO', 'Erro ao salvar artigo favorito!')
-        // }
-
+        try {
+            await AsyncStorage.setItem('favorites', JSON.stringify(data))
+            this.setState({ isFavorite: !alreadyFavorite, favoriteList: data })
+            } catch (error) {
+            Alert.alert('ERRO', 'Erro ao salvar artigo favorito!')
+        }
 
     }
 
+    //vai pegar a lista de favoritos atual para fazer as devidas manipulações
     getFavoriteList = async () => {
+
         try {
             const value = await AsyncStorage.getItem('favorites')
 
             if (value) {
 
-                const arr = JSON.parse(value)
-                this.setState({favoriteList: arr})
-                console.log(arr[0])
+                const data = JSON.parse(value)
 
+                const alreadyFavorite = data.some(item => item === this.props.articleNum)
+
+                this.setState({favoriteList: data, isFavorite: alreadyFavorite})
             }
+            else
+                Alert.alert('ERRO', 'Erro ao carregar artigos favoritos!')  
+
         } catch (error) {
             this.favorites = []
+            Alert.alert('ERRO', 'Erro ao carregar artigos favoritos!')
         }
+    }
+
+    //para atualizar a tela de favoritos (caso vá voltar pra ele), é preciso chamar sua Action respectiva
+    //pois o pop() mantém o último estado salvo antes de vir para a tela de artigo
+    //ou seja, se eu desfavoritei o artigo e voltasse pelo pop() ele ainda continuaria disponível na tela de favoritos 
+    handleGoBack = () => {
+
+        if(this.props.fromFavorites)
+            Actions.favorites()
+        else
+            Actions.pop()
     }
 
     componentWillMount() {
         this.getFavoriteList()
     }
 
+    componentDidMount() {
+        BackHandler.addEventListener('hardwareBackPress', this.handleGoBack)
+    }
+
+    componentWillUnmount() {
+        BackHandler.removeEventListener('hardwareBackPress', this.handleGoBack)
+    }
+    
     //o android não possui uma propriedade para espaçamento de letras
     //essa função serve para gerar esse espaçamento artificialmente
     applyLetterSpacing(string, count = 1) {
@@ -148,9 +162,6 @@ const styles = StyleSheet.create({
         width:null,
         alignItems: 'center',
         justifyContent:'center'
-    },
-    gifStyle: {
-        width:'100%',
     },
 
     iconsContainer: {

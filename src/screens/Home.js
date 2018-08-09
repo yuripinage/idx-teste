@@ -1,15 +1,20 @@
 import React, { Component } from 'react'
-import { View, StyleSheet, ScrollView, BackHandler } from 'react-native'
+import { View, StyleSheet, ScrollView, BackHandler, AsyncStorage, Alert } from 'react-native'
 import { Actions } from 'react-native-router-flux'
 import SideMenu from 'react-native-side-menu'
 import { PinkBar, ContentItem, Header, DrawerMenu } from '../components'
 import { artigos } from '../Artigos'
+
+//Yuri Alexandre Pinagé Ribeiro
+//yuripinage@gmail.com
+//(85) 9-9950-6356
 
 class Home extends Component {
 
     constructor(props) {
         super(props)
 
+        //states necessários para gerenciar o componente SideMenu
         this.state = { 
             toggle: () => {this.setState({ isOpen: !this.state.isOpen })},
             menuState: (isOpen) => {this.setState({ isOpen })}
@@ -18,7 +23,7 @@ class Home extends Component {
 
     render() {
 
-        const { toggle, menuState, isOpen } = this.state;
+        const { toggle, menuState, isOpen } = this.state
 
         return (
             <SideMenu
@@ -59,8 +64,32 @@ class Home extends Component {
         )
     }
 
+    //vai criar um campo no storage para os artigos favoritos, caso ainda não exista algum
+    checkStorage = async () => {
+        try {
+            const value = await AsyncStorage.getItem('favorites')
+
+            if (value) {
+                console.log('OK!')
+            }
+            else {
+                try {
+                    await AsyncStorage.setItem('favorites', JSON.stringify([]))
+                    console.log('Novo item salvo!')
+                }catch (error) {
+                    console.log(error)
+                    Alert.alert('ERRO', 'Erro ao salvar artigo favorito!')
+                }
+            }
+        } catch (error) {
+            console.log(error)
+            Alert.alert('ERRO', 'Erro ao tratar storage.')
+        }
+    }
+
     componentDidMount() {
         BackHandler.addEventListener('hardwareBackPress', this.handleBackButton)
+        this.checkStorage()
     }
 
     componentWillUnmount() {

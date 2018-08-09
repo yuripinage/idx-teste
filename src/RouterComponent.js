@@ -4,7 +4,7 @@ import Home from './screens/Home'
 import Article from './screens/Article'
 import Favorites from './screens/Favorites'
 
-//router-flux é uma biblioteca para navegação que eu gosto de usar em projetos que não sejam muito complexos
+//router-flux é uma biblioteca para navegação que eu gosto de usar mais simples
 
 const RouterComponent = () => {
     return (
